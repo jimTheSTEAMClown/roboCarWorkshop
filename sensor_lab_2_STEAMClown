@@ -1,0 +1,80 @@
+// ============================================================================
+// Source: STEAM Clown - www.steamclown.org 
+// GitHub: https://github.com/jimTheSTEAMClown
+// Hacker: Jim Burnham - STEAM Clown, Engineer, Maker, Propmaster & Adrenologist 
+// This example code under the GNU Lesser General Public License v3.0
+// and any docs and lesson examples is licensed under the CC BY-NC-SA 3.0.
+// https://creativecommons.org/licenses/by-nc-sa/3.0/
+// Create Date:      07/22/2018 
+// Design Name:     sensor_lab_2_STEAMClown
+// Description:     adaptation of blink on http://arduino.cc/
+// Dependencies: 
+// Revision: 
+// Revision 0.03 - Updated for Robo Car Workshop - 07/22/2018
+// Revision 0.02 - Updated for SVCTE Mechatronics Class - 07/22/2018
+// Revision 0.01 - Created 07/22/2018
+// Additional Comments: 
+//
+// ============================================================================
+int incomingByte = 0;   // for incoming serial data
+int distance = 0;
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize serial communication @ 9600 baud:
+  Serial.begin(9600);
+
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  Serial.println("Checking Distance"); 
+  distance=checkDistance();
+
+  if (distance < 6) {
+    // write code that does something when your distance threshhold is found
+    alarm();
+    Serial.println("less than 6");
+  }
+  else{
+    // write code that does something when your distance threshhold is NOT found
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("more than 5");
+  }
+
+  Serial.println("pause for 3 seconds"); 
+  delay(3000);                       // wait for a 3 seconds 
+}
+
+// Routines that are called in this program
+int checkDistance(){
+    // send data only when you receive data:
+    if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+    // say what you got:
+    Serial.print("I received: ");
+    Serial.println(incomingByte-48, DEC);
+    }
+    if (incomingByte-48 > 0) {
+      return (incomingByte-48);
+    }
+    else{
+      return -1;
+    }
+}
+
+void alarm(){
+  // send data only when you receive data:
+  for (int i = 0; i < 5; i ++)
+  {
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    Serial.print("HIGH");
+    delay(100);                       // wait for a second
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    Serial.println("LOW");
+    delay(100);                       // wait for a second
+  }
+}
