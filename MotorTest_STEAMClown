@@ -1,0 +1,244 @@
+// ============================================================================
+// Source: STEAM Clown - www.steamclown.org 
+// GitHub: https://github.com/jimTheSTEAMClown/roboCarWorkshop
+// Hacker: Jim Burnham - STEAM Clown, Engineer, Maker, Propmaster & Adrenologist 
+// This example code under the GNU Lesser General Public License v3.0
+// and any docs and lesson examples is licensed under the CC BY-NC-SA 3.0.
+// https://creativecommons.org/licenses/by-nc-sa/3.0/
+// Create Date:     12/02/2017 
+// Design Name:     RoboCarMotorTest
+// Description:     This is a DIY RoboCar that has left and right drive motors.  
+// Dependencies: 
+// Revision: 
+// Revision 0.03 - Updated for STEAM Clown's RoboCar Workshop - Simplified drive routine calls
+// Revision 0.02 - Updated for SVCTE Mechatronics Class
+// Revision 0.01 - Created 12/02/2017
+// Additional Comments: 
+// For more on the DIY RoboCars project see https://diyrobocars.com/
+// This Arduino based system uses the L9110 motor driver for controlling 2 small DC motors
+//   http://www.bajdi.com is an informational source on the L9110 module
+// ============================================================================ 
+
+// Left Motor 
+const int leftDirControl1 = 2;
+const int leftDirControl2 = 3;
+const int leftSpeedControlPin = 4; // Needs to be a PWM pin to be able to control motor speed
+
+// Right Motor
+const int rightDirControl1 = 5;
+const int rightDirControl2 = 6;
+const int rightSpeedControlPin = 7; // Needs to be a PWM pin to be able to control motor speed
+
+byte carSpeed = 0;  // change this (0-255) to control the speed of the motors
+byte leftSpeed = 0;  // change this (0-255) to control the speed of the motors
+byte rightSpeed = 0;  // change this (0-255) to control the speed of the motors
+int differential = 1; // this is the % difference in the speed right vs left 
+/* See function for parameters, but basic are STOP, FORWARD, BACKWARD, SPINLEFT
+ * SPINRIGHT, HALFTRIGHT, HALFLEFT
+*/ 
+char carDirection[16] = "STOP"; 
+// char leftDirection = 'S'; // S=STOP, F=Forward, B=Reverse
+// char rightDirection = 'S';  // S=STOP, F=Forward, B=Reverse  
+
+void setup() {
+  // initialize serial communication @ 9600 baud:
+  Serial.begin(9600);
+
+  //Define L298N Dual H-Bridge Motor Controller Pins
+  pinMode(leftDirControl1,OUTPUT);
+  pinMode(leftDirControl2,OUTPUT);
+  pinMode(leftSpeedControlPin,OUTPUT);
+  pinMode(rightDirControl1,OUTPUT);
+  pinMode(rightDirControl2,OUTPUT);
+  pinMode(rightSpeedControlPin,OUTPUT);
+
+  // Stop All Motors
+    allDriveMotorsStop();
+    delay(5000); 
+}
+   
+void loop() {
+    carSpeed = 140;
+    differential = 1;
+    drive("FORWARD", carSpeed, differential);    
+    // drive("BACKWARD", carSpeed, differential);    
+    // drive("SPINLEFT", carSpeed, differential);    
+    // drive("SPINRIGHT", carSpeed, differential);   
+    delay(1000); 
+    drive("STOP", carSpeed, differential);    
+    delay(3000); 
+ }
+
+// ============================================================================  
+
+void allDriveMotorsStop() {
+    analogWrite(leftSpeedControlPin, 0);//Sets speed variable via PWM
+    analogWrite(rightSpeedControlPin, 0);//Sets speed variable via PWM  
+    digitalWrite(leftDirControl1, LOW);
+    digitalWrite(leftDirControl2, LOW);
+    digitalWrite(rightDirControl1, LOW); 
+    digitalWrite(rightDirControl2, LOW);
+    Serial.println("All Motors STOPPED");  
+}
+
+/* Function to control Direction, Speed and Differential
+ * Direction Options
+ * STOP
+ * FORWARD
+ * BACKWARD
+ * SPINLEFT
+ * SPINRIGHT
+ * HALFLEFT - left motor is 50% less than right motor
+ * HALFTRIGHT - right motor is 50% less than left motor
+ * SLIGHTLEFT - left motor is some% less than right motor
+ * SLIGHTRIGHT - right motor is some% less than left motor
+
+*/
+int drive(char carDirection[], int carSpeed, int differential )
+  {
+    if(carDirection=="STOP")
+    {
+      carSpeed = 0; // changes carSpeed locally
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM       
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is STOPPED at a speed of ");
+      Serial.println(carSpeed);      
+    }
+    else if(carDirection=="FORWARD") // Forward
+    {
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM 
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, HIGH);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, HIGH);
+      Serial.print("FORWARD at a speed of ");
+      Serial.print(carSpeed);
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);
+    }
+    else if(carDirection=="BACKWARD")
+    {
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM 
+      digitalWrite(leftDirControl1, HIGH);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, HIGH); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is BACKWARD at a speed of ");
+      Serial.print(carSpeed); 
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);     
+    }
+    else if(carDirection=="SPINLEFT") // Spin Hard Left
+    {
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM       
+      digitalWrite(leftDirControl1, HIGH);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, HIGH);
+      Serial.print("car is Spinning Hard Left at a speed of ");
+      Serial.print(carSpeed); 
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);         
+    }            
+    else if(carDirection=="SPINRIGHT") // Spin Hard Right
+    {
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM       
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, HIGH);
+      digitalWrite(rightDirControl1, HIGH); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is Spinning Hard Right at a speed of ");
+      Serial.print(carSpeed);  
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);        
+    }                
+    else if(carDirection=="HALFLEFT") // Slight Left
+    {
+      //leftSpeed = carSpeed - (carSpeed*0.50); // Sets leftspeed variable via PWM to less than current carSpeed
+      leftSpeed = 50; // Sets leftspeed variable via PWM to less than current carSpeed
+      rightSpeed = carSpeed; // Sets rightspeed variable via PWM to current carSpeed
+      analogWrite(leftSpeedControlPin, leftSpeed);//Sets speed variable via PWM to less than current carSpeed
+      analogWrite(rightSpeedControlPin, rightSpeed);//Sets carSpeed variable via PWM 
+      digitalWrite(leftDirControl1, HIGH);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, HIGH);
+      Serial.print("car is Forward + Left at a speed of ");
+      Serial.print(leftSpeed);
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);       
+    }
+    else if(carDirection=="HALFRIGHT") // Slight Right
+    {
+      leftSpeed = carSpeed; // Sets rightspeed variable via PWM to current carSpeed
+      //rightSpeed = carSpeed - (carSpeed*0.50); // Sets rightSpeed variable via PWM to less than current carSpeed
+      rightSpeed = 50; // Sets rightSpeed variable via PWM to less than current carSpeed
+      analogWrite(leftSpeedControlPin, leftSpeed);//Sets speed variable via PWM to less than current carSpeed
+      analogWrite(rightSpeedControlPin, rightSpeed);//Sets carSpeed variable via PWM 
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, HIGH);
+      digitalWrite(rightDirControl1, HIGH); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is Forward + Right at a speed of ");
+      Serial.print(rightSpeed);
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);       
+    }
+    else if(carDirection=="SLIGHTLEFT") // Slight Left
+    {
+      leftSpeed = carSpeed - (carSpeed*differential); // Sets leftspeed variable via PWM to less than current carSpeed
+      //leftSpeed = 50; // Sets leftspeed variable via PWM to less than current carSpeed
+      rightSpeed = carSpeed; // Sets rightspeed variable via PWM to current carSpeed
+      analogWrite(leftSpeedControlPin, leftSpeed);//Sets speed variable via PWM to less than current carSpeed
+      analogWrite(rightSpeedControlPin, rightSpeed);//Sets carSpeed variable via PWM 
+      digitalWrite(leftDirControl1, HIGH);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, HIGH);
+      Serial.print("car is Forward + Left at a speed of ");
+      Serial.print(leftSpeed);
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);       
+    }
+    else if(carDirection=="SLIGHTRIGHT") // Slight Right
+    {
+      leftSpeed = carSpeed; // Sets rightspeed variable via PWM to current carSpeed
+      rightSpeed = carSpeed - (carSpeed*differential); // Sets rightSpeed variable via PWM to less than current carSpeed
+      //rightSpeed = 50; // Sets rightSpeed variable via PWM to less than current carSpeed
+      analogWrite(leftSpeedControlPin, leftSpeed);//Sets speed variable via PWM to less than current carSpeed
+      analogWrite(rightSpeedControlPin, rightSpeed);//Sets carSpeed variable via PWM 
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, HIGH);
+      digitalWrite(rightDirControl1, HIGH); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is Forward + Right at a speed of ");
+      Serial.print(rightSpeed);
+      Serial.print(" with a Differetial of ");
+      Serial.println(differential);       
+    }    
+    else
+    {
+      Serial.print("ERROR ");
+      Serial.print(carDirection);
+      Serial.print(". ");
+      Serial.println(carSpeed);
+      Serial.print(". ");
+      Serial.println(differential);
+      analogWrite(leftSpeedControlPin, carSpeed);//Sets speed variable via PWM
+      analogWrite(rightSpeedControlPin, carSpeed);//Sets speed variable via PWM       
+      digitalWrite(leftDirControl1, LOW);
+      digitalWrite(leftDirControl2, LOW);
+      digitalWrite(rightDirControl1, LOW); 
+      digitalWrite(rightDirControl2, LOW);
+      Serial.print("car is Stopped but there was a direction command error");   
+    }
+
+}
