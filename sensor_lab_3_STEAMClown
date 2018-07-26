@@ -1,0 +1,101 @@
+
+// ============================================================================
+// Source: STEAM Clown - www.steamclown.org 
+// GitHub: https://github.com/jimTheSTEAMClown
+// Hacker: Jim Burnham - STEAM Clown, Engineer, Maker, Propmaster & Adrenologist 
+// This example code under the GNU Lesser General Public License v3.0
+// and any docs and lesson examples is licensed under the CC BY-NC-SA 3.0.
+// https://creativecommons.org/licenses/by-nc-sa/3.0/
+// Create Date:      07/22/2018 
+// Design Name:     sensor_lab_2_STEAMClown
+// Description:     adaptation of blink on http://arduino.cc/
+// Dependencies: 
+// Revision: 
+// Revision 0.03 - Updated for Robo Car Workshop - 07/22/2018
+// Revision 0.02 - Updated for SVCTE Mechatronics Class - 07/22/2018
+// Revision 0.01 - Created 07/22/2018
+// Additional Comments: 
+//
+// ============================================================================
+int incomingByte = 0;   // for incoming serial data
+// defines variables
+long duration;
+int distance;
+int distanceReturned = 0;
+// defines pins numbers
+const int trigPin = 9;
+const int echoPin = 10;
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+  // initialize serial communication @ 9600 baud:
+  Serial.begin(9600);
+
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED_BUILTIN, OUTPUT);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  Serial.println("Checking Distance"); 
+  distanceReturned=checkDistance();
+
+  if (distanceReturned < 10) {
+    // write code that does something when your distance threshhold is found
+    alarm();
+    Serial.println("less than 10");
+  }
+  else{
+    // write code that does something when your distance threshhold is NOT found
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.print(distanceReturned);
+    Serial.println(" is more than 10");
+  }
+
+  Serial.println("pause for 1 seconds"); 
+  delay(1000);                       // wait for a 1 seconds 
+}
+
+// Routines that are called in this program
+int checkDistance(){
+  // Clears the trigPin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  // Sets the trigPin on HIGH state for 10 micro seconds
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculating the distance
+  distance= duration*0.034/2;
+
+  // Prints the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.println(distance);
+  
+  if (distance < 10) {
+    return distance;
+  }
+  else{
+    return distance;
+  }
+}
+
+void alarm(){
+  // send data only when you receive data:
+  for (int i = 0; i < 5; i ++)
+  {
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    Serial.print("HIGH");
+    delay(100);                       // wait for a second
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    Serial.println("LOW");
+    delay(100);                       // wait for a second
+  }
+}
